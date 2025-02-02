@@ -41,22 +41,33 @@ bool MyApp::OnInit()
     return true;
 }
 
+namespace DeclarativeUI {
+
+template <typename Widget>
+void CreateAndAdd(wxWindow* parent, wxWindowID id, std::string str, wxSizer* sizer, wxSizerFlags flags)
+{
+    sizer->Add(new Widget(parent, id, str), flags);
+}
+
+}
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     CreateStatusBar(1);
+    using namespace DeclarativeUI;
     // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerTop = new wxBoxSizer(wxHORIZONTAL);
-    sizerTop->Add(new wxButton(this, wxID_ANY, "Click"), wxSizerFlags().Border());
-    sizerTop->Add(new wxTextCtrl(this, wxID_ANY, "Dog"), wxSizerFlags(1).Border());
+    CreateAndAdd<wxButton>(this, wxID_ANY, "Click", sizerTop, wxSizerFlags().Border());
+    CreateAndAdd<wxTextCtrl>(this, wxID_ANY, "Dog", sizerTop, wxSizerFlags(1).Border());
 
     sizer->Add(sizerTop, wxSizerFlags().Border().Expand());
 
     auto* sizerBottom = new wxBoxSizer(wxHORIZONTAL);
-    sizerBottom->Add(new wxStaticText(this, wxID_ANY, "Cat"), wxSizerFlags().Border());
-    sizerBottom->Add(new wxButton(this, wxID_EXIT, "Done"), wxSizerFlags().Border());
+    CreateAndAdd<wxStaticText>(this, wxID_ANY, "Cat", sizerBottom, wxSizerFlags().Border());
+    CreateAndAdd<wxButton>(this, wxID_EXIT, "Done", sizerBottom, wxSizerFlags().Border());
 
     sizer->Add(sizerBottom, wxSizerFlags().Border());
 
