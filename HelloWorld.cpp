@@ -44,22 +44,17 @@ bool MyApp::OnInit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    auto* button = new wxButton(this, wxID_ANY, "Click");
-    auto* text1 = new wxTextCtrl(this, wxID_ANY, "Dog");
-    auto* text2 = new wxStaticText(this, wxID_ANY, "Cat");
-    auto* done = new wxButton(this, wxID_EXIT, "Done");
-
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerUpper = new wxBoxSizer(wxHORIZONTAL);
-    sizerUpper->Add(button, wxSizerFlags().Border());
-    sizerUpper->Add(text1, wxSizerFlags(1).Border());
+    sizerUpper->Add(new wxButton(this, wxID_ANY, "Click"), wxSizerFlags().Border());
+    sizerUpper->Add(new wxTextCtrl(this, wxID_ANY, "Dog"), wxSizerFlags(1).Border());
 
     topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
 
     auto* sizerLower = new wxBoxSizer(wxHORIZONTAL);
-    sizerLower->Add(text2, wxSizerFlags().Border());
-    sizerLower->Add(done, wxSizerFlags().Border());
+    sizerLower->Add(new wxStaticText(this, wxID_ANY, "Cat"), wxSizerFlags().Border());
+    sizerLower->Add(new wxButton(this, wxID_EXIT, "Done"), wxSizerFlags().Border());
 
     topSizer->Add(sizerLower, wxSizerFlags().Border());
 
