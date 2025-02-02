@@ -41,20 +41,26 @@ bool MyApp::OnInit()
     return true;
 }
 
+template <typename Widget>
+void CreateAndAdd(wxWindow* parent, wxWindowID id, std::string str, wxSizer* sizer, wxSizerFlags flags)
+{
+    sizer->Add(new Widget(parent, id, str), flags);
+}
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerUpper = new wxBoxSizer(wxHORIZONTAL);
-    sizerUpper->Add(new wxButton(this, wxID_ANY, "Click"), wxSizerFlags().Border());
-    sizerUpper->Add(new wxTextCtrl(this, wxID_ANY, "Dog"), wxSizerFlags(1).Border());
+    CreateAndAdd<wxButton>(this, wxID_ANY, "Click", sizerUpper, wxSizerFlags().Border());
+    CreateAndAdd<wxTextCtrl>(this, wxID_ANY, "Dog", sizerUpper, wxSizerFlags(1).Border());
 
     topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
 
     auto* sizerLower = new wxBoxSizer(wxHORIZONTAL);
-    sizerLower->Add(new wxStaticText(this, wxID_ANY, "Cat"), wxSizerFlags().Border());
-    sizerLower->Add(new wxButton(this, wxID_EXIT, "Done"), wxSizerFlags().Border());
+    CreateAndAdd<wxStaticText>(this, wxID_ANY, "Cat", sizerLower, wxSizerFlags().Border());
+    CreateAndAdd<wxButton>(this, wxID_EXIT, "Done", sizerLower, wxSizerFlags().Border());
 
     topSizer->Add(sizerLower, wxSizerFlags().Border());
 
