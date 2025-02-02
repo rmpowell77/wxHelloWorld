@@ -45,24 +45,18 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     CreateStatusBar(1);
-    // Create the controls.
-    auto* button = new wxButton(this, wxID_ANY, "Click");
-    auto* text1 = new wxTextCtrl(this, wxID_ANY, "Dog");
-    auto* text2 = new wxStaticText(this, wxID_ANY, "Cat");
-    auto* done = new wxButton(this, wxID_EXIT, "Done");
-
-    // Layout the controls.
+    // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerTop = new wxBoxSizer(wxHORIZONTAL);
-    sizerTop->Add(button, wxSizerFlags().Border());
-    sizerTop->Add(text1, wxSizerFlags(1).Border());
+    sizerTop->Add(new wxButton(this, wxID_ANY, "Click"), wxSizerFlags().Border());
+    sizerTop->Add(new wxTextCtrl(this, wxID_ANY, "Dog"), wxSizerFlags(1).Border());
 
     sizer->Add(sizerTop, wxSizerFlags().Border().Expand());
 
     auto* sizerBottom = new wxBoxSizer(wxHORIZONTAL);
-    sizerBottom->Add(text2, wxSizerFlags().Border());
-    sizerBottom->Add(done, wxSizerFlags().Border());
+    sizerBottom->Add(new wxStaticText(this, wxID_ANY, "Cat"), wxSizerFlags().Border());
+    sizerBottom->Add(new wxButton(this, wxID_EXIT, "Done"), wxSizerFlags().Border());
 
     sizer->Add(sizerBottom, wxSizerFlags().Border());
 
