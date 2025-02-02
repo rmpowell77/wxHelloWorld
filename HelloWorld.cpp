@@ -43,24 +43,18 @@ bool MyApp::OnInit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    // Create the controls.
-    auto* text1 = new wxTextCtrl(this, wxID_ANY, "Dog");
-    auto* btnRight = new wxButton(this, wxID_ANY, "Right");
-    auto* btnLeft = new wxButton(this, wxID_ANY, "Left");
-    auto* text2 = new wxStaticText(this, wxID_ANY, "Cat");
-
-    // Layout the controls.
+    // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerText = new wxBoxSizer(wxHORIZONTAL);
-    sizerText->Add(text1, wxSizerFlags(1).Expand().Border());
-    sizerText->Add(btnRight, wxSizerFlags().Expand().Border());
+    sizerText->Add(new wxTextCtrl(this, wxID_ANY, "Dog"), wxSizerFlags(1).Expand().Border());
+    sizerText->Add(new wxButton(this, wxID_ANY, "Right"), wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerText, wxSizerFlags().Expand().Border());
 
     auto* sizerBtns = new wxBoxSizer(wxHORIZONTAL);
-    sizerBtns->Add(btnLeft, wxSizerFlags().Expand().Border());
-    sizerBtns->Add(text2, wxSizerFlags().Expand().Border());
+    sizerBtns->Add(new wxButton(this, wxID_ANY, "Left"), wxSizerFlags().Expand().Border());
+    sizerBtns->Add(new wxStaticText(this, wxID_ANY, "Cat"), wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerBtns, wxSizerFlags().Expand().Border());
 
