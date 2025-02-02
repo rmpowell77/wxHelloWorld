@@ -40,21 +40,32 @@ bool MyApp::OnInit()
     return true;
 }
 
+namespace DeclarativeUI {
+
+template <typename Widget>
+void CreateAndAdd(std::string str, wxWindow* parent, wxSizer* sizer, wxSizerFlags flags)
+{
+    sizer->Add(new Widget(parent, wxID_ANY, str), flags);
+}
+
+}
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
+    using namespace DeclarativeUI;
     // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerText = new wxBoxSizer(wxHORIZONTAL);
-    sizerText->Add(new wxTextCtrl(this, wxID_ANY, "Dog"), wxSizerFlags(1).Expand().Border());
-    sizerText->Add(new wxButton(this, wxID_ANY, "Right"), wxSizerFlags().Expand().Border());
+    CreateAndAdd<wxTextCtrl>("Dog", this, sizerText, wxSizerFlags(1).Expand().Border());
+    CreateAndAdd<wxButton>("Right", this, sizerText, wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerText, wxSizerFlags().Expand().Border());
 
     auto* sizerBtns = new wxBoxSizer(wxHORIZONTAL);
-    sizerBtns->Add(new wxButton(this, wxID_ANY, "Left"), wxSizerFlags().Expand().Border());
-    sizerBtns->Add(new wxStaticText(this, wxID_ANY, "Cat"), wxSizerFlags().Expand().Border());
+    CreateAndAdd<wxButton>("Left", this, sizerBtns, wxSizerFlags().Expand().Border());
+    CreateAndAdd<wxStaticText>("Cat", this, sizerBtns, wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerBtns, wxSizerFlags().Expand().Border());
 
