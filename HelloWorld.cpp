@@ -42,11 +42,20 @@ bool MyApp::OnInit()
 
 namespace DeclarativeUI {
 
-template <typename Widget>
-void CreateAndAdd(std::string str, wxWindow* parent, wxSizer* sizer, wxSizerFlags flags)
-{
-    sizer->Add(new Widget(parent, wxID_ANY, str), flags);
-}
+template <typename W>
+struct Widget {
+    explicit Widget(std::string str)
+        : str(std::move(str))
+    {
+    }
+
+    auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags)
+    {
+        sizer->Add(new W(parent, wxID_ANY, str), flags);
+    }
+
+    std::string str;
+};
 
 }
 
@@ -58,14 +67,14 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerText = new wxBoxSizer(wxHORIZONTAL);
-    CreateAndAdd<wxTextCtrl>("Dog", this, sizerText, wxSizerFlags(1).Expand().Border());
-    CreateAndAdd<wxButton>("Right", this, sizerText, wxSizerFlags().Expand().Border());
+    Widget<wxTextCtrl> { "Dog" }.createAndAdd(this, sizerText, wxSizerFlags(1).Expand().Border());
+    Widget<wxButton> { "Right" }.createAndAdd(this, sizerText, wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerText, wxSizerFlags().Expand().Border());
 
     auto* sizerBtns = new wxBoxSizer(wxHORIZONTAL);
-    CreateAndAdd<wxButton>("Left", this, sizerBtns, wxSizerFlags().Expand().Border());
-    CreateAndAdd<wxStaticText>("Cat", this, sizerBtns, wxSizerFlags().Expand().Border());
+    Widget<wxButton> { "Left" }.createAndAdd(this, sizerBtns, wxSizerFlags().Expand().Border());
+    Widget<wxStaticText> { "Cat" }.createAndAdd(this, sizerBtns, wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerBtns, wxSizerFlags().Expand().Border());
 
