@@ -43,6 +43,11 @@ bool MyApp::OnInit()
 
 namespace DeclarativeUI {
 
+template <typename T>
+concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) {
+    widget.createAndAdd(window, sizer, wxSizerFlags {});
+};
+
 template <typename W>
 struct Widget {
     explicit Widget(std::string str, std::optional<wxSizerFlags> flags = {})
@@ -60,7 +65,7 @@ struct Widget {
     std::optional<wxSizerFlags> flags;
 };
 
-template <typename... W>
+template <CreateAndAddable... W>
 auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tuple<W...> widgets)
 {
     std::apply([parent, sizer, flags](auto&&... tupleArg) {
@@ -69,7 +74,7 @@ auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tup
         widgets);
 }
 
-template <typename... W>
+template <CreateAndAddable... W>
 auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, W... widgets)
 {
     return createAndAdd(parent, sizer, flags, std::make_tuple(widgets...));
