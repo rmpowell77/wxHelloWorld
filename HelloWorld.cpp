@@ -85,10 +85,11 @@ struct Sizer {
     {
     }
 
-    auto createAndAdd(wxWindow* parent)
+    auto createAndAdd(wxWindow* parent, wxSizer* parentSizer, wxSizerFlags parentFlags)
     {
         auto* sizer = new wxBoxSizer(orientation);
         ::createAndAdd(parent, sizer, flags, widgets);
+        parentSizer->Add(sizer, parentFlags);
         return sizer;
     }
 
@@ -110,25 +111,19 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 {
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
 
-    auto* sizerUpper = Sizer {
+    Sizer {
         wxHORIZONTAL,
         wxSizerFlags().Border(),
         Button { wxID_ANY, "Click" },
-        TextCtrl {
-            wxID_ANY, "Dog", wxSizerFlags(1).Border() }
-    }.createAndAdd(this);
+        TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() }
+    }.createAndAdd(this, topSizer, wxSizerFlags().Border().Expand());
 
-    topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
-
-    auto* sizerLower = Sizer {
+    Sizer {
         wxHORIZONTAL,
         wxSizerFlags().Border(),
         Text { wxID_ANY, "Cat" },
-        Button {
-            wxID_EXIT, "Done" }
-    }.createAndAdd(this);
-
-    topSizer->Add(sizerLower, wxSizerFlags().Border());
+        Button { wxID_EXIT, "Done" }
+    }.createAndAdd(this, topSizer, wxSizerFlags().Border());
 
     SetSizerAndFit(topSizer);
 }
