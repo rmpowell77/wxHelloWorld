@@ -68,6 +68,12 @@ auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tup
     },
         widgets);
 }
+
+template <typename... W>
+auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, W... widgets)
+{
+    return createAndAdd(parent, sizer, flags, std::make_tuple(widgets...));
+}
 }
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -81,10 +87,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     createAndAdd(this,
         sizerText,
         wxSizerFlags().Expand().Border(),
-        std::tuple {
-            Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
-            Widget<wxButton> { "Right" },
-        });
+        Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
+        Widget<wxButton> { "Right" });
 
     sizer->Add(sizerText, wxSizerFlags().Expand().Border());
 
@@ -92,10 +96,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     createAndAdd(this,
         sizerBtns,
         wxSizerFlags().Expand().Border(),
-        std::tuple {
-            Widget<wxButton> { "Left" },
-            Widget<wxStaticText> { "Cat" },
-        });
+        Widget<wxButton> { "Left" },
+        Widget<wxStaticText> { "Cat" });
 
     sizer->Add(sizerBtns, wxSizerFlags().Expand().Border());
 
