@@ -79,8 +79,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         Widget<wxButton> { wxID_ANY, "Click" },
         Widget<wxTextCtrl> { wxID_ANY, "Dog", wxSizerFlags(1).Border() },
     };
-    std::apply([this, sizer = sizerTop](auto&&... tupleArg) {
-        (tupleArg.createAndAdd(this, sizer, wxSizerFlags().Border()), ...);
+    std::apply([this, sizer = sizerTop, flags = wxSizerFlags().Border()](auto&&... tupleArg) {
+        (tupleArg.createAndAdd(this, sizer, flags), ...);
     },
         topWidgets);
 
@@ -91,8 +91,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         Widget<wxStaticText> { wxID_ANY, "Cat" },
         Widget<wxButton> { wxID_EXIT, "Done" },
     };
-    std::apply([this, sizer = sizerBottom](auto&&... tupleArg) {
-        (tupleArg.createAndAdd(this, sizer, wxSizerFlags().Border()), ...);
+    std::apply([this, sizer = sizerBottom, flags = wxSizerFlags().Border()](auto&&... tupleArg) {
+        (tupleArg.createAndAdd(this, sizer, flags), ...);
     },
         bottomWidgets);
 
