@@ -70,19 +70,28 @@ private:
 };
 
 template <CreateAndAddable... W>
-auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tuple<W...> widgets)
-{
-    std::apply([parent, sizer, flags](auto&&... tupleArg) {
-        (tupleArg.createAndAdd(parent, sizer, flags), ...);
-    },
-        widgets);
-}
+struct Sizer {
+    Sizer(wxOrientation orientation, wxSizerFlags flags, W... widgets)
+        : orientation(orientation)
+        , flags(flags)
+        , widgets(std::make_tuple(widgets...))
+    {
+    }
 
-template <CreateAndAddable... W>
-auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, W... widgets)
-{
-    return createAndAdd(parent, sizer, flags, std::make_tuple(widgets...));
-}
+    auto createAndAdd(wxWindow* parent)
+    {
+        auto* sizer = new wxBoxSizer(orientation);
+        std::apply([this, parent, sizer](auto&&... tupleArg) {
+            (tupleArg.createAndAdd(parent, sizer, flags), ...);
+        },
+            widgets);
+        return sizer;
+    }
+
+    wxOrientation orientation;
+    wxSizerFlags flags;
+    std::tuple<W...> widgets;
+};
 
 using TextCtrl = Widget<wxTextCtrl>;
 using Button = Widget<wxButton>;
@@ -102,21 +111,21 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
-    auto* sizerTop = new wxBoxSizer(wxHORIZONTAL);
-    createAndAdd(this,
-        sizerTop,
+    auto* sizerTop = Sizer {
+        wxHORIZONTAL,
         wxSizerFlags().Border(),
         Button { wxID_ANY, "Click" },
-        TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() });
+        TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() }
+    }.createAndAdd(this);
 
     sizer->Add(sizerTop, wxSizerFlags().Border().Expand());
 
-    auto* sizerBottom = new wxBoxSizer(wxHORIZONTAL);
-    createAndAdd(this,
-        sizerBottom,
+    auto* sizerBottom = Sizer {
+        wxHORIZONTAL,
         wxSizerFlags().Border(),
         Text { wxID_ANY, "Cat" },
-        Button { wxID_EXIT, "Done" });
+        Button { wxID_EXIT, "Done" }
+    }.createAndAdd(this);
 
     sizer->Add(sizerBottom, wxSizerFlags().Border());
 
