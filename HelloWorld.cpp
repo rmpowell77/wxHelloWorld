@@ -74,13 +74,14 @@ struct Sizer {
     {
     }
 
-    auto createAndAdd(wxWindow* parent)
+    auto createAndAdd(wxWindow* parent, wxSizer* parentSizer, wxSizerFlags parentFlags)
     {
         auto* sizer = new wxBoxSizer(orientation);
         std::apply([this, parent, sizer](auto&&... tupleArg) {
             (tupleArg.createAndAdd(parent, sizer, flags), ...);
         },
             widgets);
+        parentSizer->Add(sizer, parentFlags);
         return sizer;
     }
 
@@ -98,25 +99,21 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
-    auto* sizerText = Sizer {
+    Sizer {
         wxHORIZONTAL,
         wxSizerFlags().Expand().Border(),
         Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
         Widget<wxButton> { "Right" },
     }
-                          .createAndAdd(this);
+        .createAndAdd(this, sizer, wxSizerFlags().Expand().Border());
 
-    sizer->Add(sizerText, wxSizerFlags().Expand().Border());
-
-    auto* sizerBtns = Sizer {
+    Sizer {
         wxHORIZONTAL,
         wxSizerFlags().Expand().Border(),
         Widget<wxButton> { "Left" },
         Widget<wxStaticText> { "Cat" },
     }
-                          .createAndAdd(this);
-
-    sizer->Add(sizerBtns, wxSizerFlags().Expand().Border());
+        .createAndAdd(this, sizer, wxSizerFlags().Expand().Border());
 
     SetSizerAndFit(sizer);
 }
