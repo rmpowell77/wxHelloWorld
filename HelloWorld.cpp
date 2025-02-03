@@ -4,6 +4,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+#include <optional>
 
 class MyApp : public wxApp {
 public:
@@ -44,17 +45,19 @@ namespace DeclarativeUI {
 
 template <typename W>
 struct Widget {
-    explicit Widget(std::string str)
+    explicit Widget(std::string str, std::optional<wxSizerFlags> flags = {})
         : str(std::move(str))
+        , flags(flags)
     {
     }
 
-    auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags)
+    auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
-        sizer->Add(new W(parent, wxID_ANY, str), flags);
+        sizer->Add(new W(parent, wxID_ANY, str), flags ? *flags : parentFlags);
     }
 
     std::string str;
+    std::optional<wxSizerFlags> flags;
 };
 
 }
@@ -67,7 +70,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerText = new wxBoxSizer(wxHORIZONTAL);
-    Widget<wxTextCtrl> { "Dog" }.createAndAdd(this, sizerText, wxSizerFlags(1).Expand().Border());
+    Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() }.createAndAdd(this, sizerText, wxSizerFlags().Expand().Border());
     Widget<wxButton> { "Right" }.createAndAdd(this, sizerText, wxSizerFlags().Expand().Border());
 
     sizer->Add(sizerText, wxSizerFlags().Expand().Border());
