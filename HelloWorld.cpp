@@ -66,19 +66,29 @@ struct Widget {
 };
 
 template <CreateAndAddable... W>
-auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tuple<W...> widgets)
-{
-    std::apply([parent, sizer, flags](auto&&... tupleArg) {
-        (tupleArg.createAndAdd(parent, sizer, flags), ...);
-    },
-        widgets);
-}
+struct Sizer {
+    Sizer(wxOrientation orientation, wxSizerFlags flags, W... widgets)
+        : orientation(orientation)
+        , flags(flags)
+        , widgets(std::make_tuple(widgets...))
+    {
+    }
 
-template <CreateAndAddable... W>
-auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, W... widgets)
-{
-    return createAndAdd(parent, sizer, flags, std::make_tuple(widgets...));
-}
+    auto createAndAdd(wxWindow* parent)
+    {
+        auto* sizer = new wxBoxSizer(orientation);
+        std::apply([this, parent, sizer](auto&&... tupleArg) {
+            (tupleArg.createAndAdd(parent, sizer, flags), ...);
+        },
+            widgets);
+        return sizer;
+    }
+
+    wxOrientation orientation;
+    wxSizerFlags flags;
+    std::tuple<W...> widgets;
+};
+
 }
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -88,21 +98,23 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     // Create and layout the controls.
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
-    auto* sizerText = new wxBoxSizer(wxHORIZONTAL);
-    createAndAdd(this,
-        sizerText,
+    auto* sizerText = Sizer {
+        wxHORIZONTAL,
         wxSizerFlags().Expand().Border(),
         Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
-        Widget<wxButton> { "Right" });
+        Widget<wxButton> { "Right" },
+    }
+                          .createAndAdd(this);
 
     sizer->Add(sizerText, wxSizerFlags().Expand().Border());
 
-    auto* sizerBtns = new wxBoxSizer(wxHORIZONTAL);
-    createAndAdd(this,
-        sizerBtns,
+    auto* sizerBtns = Sizer {
+        wxHORIZONTAL,
         wxSizerFlags().Expand().Border(),
         Widget<wxButton> { "Left" },
-        Widget<wxStaticText> { "Cat" });
+        Widget<wxStaticText> { "Cat" },
+    }
+                          .createAndAdd(this);
 
     sizer->Add(sizerBtns, wxSizerFlags().Expand().Border());
 
