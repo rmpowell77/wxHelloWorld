@@ -91,6 +91,17 @@ struct Sizer {
         return sizer;
     }
 
+    auto attachTo(wxWindow* parent)
+    {
+        auto* sizer = new wxBoxSizer(orientation);
+        std::apply([parent, sizer, flags = flags ? *flags : wxSizerFlags()](auto&&... tupleArg) {
+            (tupleArg.createAndAdd(parent, sizer, flags), ...);
+        },
+            widgets);
+        parent->SetSizerAndFit(sizer);
+        return sizer;
+    }
+
     wxOrientation orientation;
     std::optional<wxSizerFlags> flags;
     std::tuple<W...> widgets;
@@ -126,21 +137,19 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 {
     using namespace DeclarativeUI;
     // Create and layout the controls.
-    auto* sizer = new wxBoxSizer(wxVERTICAL);
-
-    HSizer {
-        Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
-        Widget<wxButton> { "Right" },
+    VSizer {
+        wxSizerFlags().Expand().Border(),
+        HSizer {
+            Widget<wxTextCtrl> { "Dog",
+                wxSizerFlags(1).Expand().Border() },
+            Widget<wxButton> { "Right" },
+        },
+        HSizer {
+            Widget<wxButton> { "Left" },
+            Widget<wxStaticText> { "Cat" },
+        },
     }
-        .createAndAdd(this, sizer, wxSizerFlags().Expand().Border());
-
-    HSizer {
-        Widget<wxButton> { "Left" },
-        Widget<wxStaticText> { "Cat" },
-    }
-        .createAndAdd(this, sizer, wxSizerFlags().Expand().Border());
-
-    SetSizerAndFit(sizer);
+        .attachTo(this);
 }
 
 void MyFrame::OnExit([[maybe_unused]] wxCommandEvent& event)
