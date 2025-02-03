@@ -104,6 +104,30 @@ struct Sizer {
     std::tuple<W...> widgets;
 };
 
+template <CreateAndAddable... W>
+struct HSizer : Sizer<W...> {
+    HSizer(W... widgets)
+        : Sizer<W...>(wxHORIZONTAL, widgets...)
+    {
+    }
+    HSizer(wxSizerFlags flags, W... widgets)
+        : Sizer<W...>(wxHORIZONTAL, flags, widgets...)
+    {
+    }
+};
+
+template <CreateAndAddable... W>
+struct VSizer : Sizer<W...> {
+    VSizer(W... widgets)
+        : Sizer<W...>(wxVERTICAL, widgets...)
+    {
+    }
+    VSizer(wxSizerFlags flags, W... widgets)
+        : Sizer<W...>(wxVERTICAL, flags, widgets...)
+    {
+    }
+};
+
 using TextCtrl = Widget<wxTextCtrl>;
 using Button = Widget<wxButton>;
 using Text = Widget<wxStaticText>;
@@ -117,14 +141,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 {
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
 
-    Sizer {
-        wxHORIZONTAL,
+    HSizer {
         Button { wxID_ANY, "Click" },
         TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() }
     }.createAndAdd(this, topSizer, wxSizerFlags().Border().Expand());
 
-    Sizer {
-        wxHORIZONTAL,
+    HSizer {
         Text { wxID_ANY, "Cat" },
         Button { wxID_EXIT, "Done" }
     }.createAndAdd(this, topSizer, wxSizerFlags().Border());
