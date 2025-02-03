@@ -77,10 +77,25 @@ auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tup
 }
 
 template <CreateAndAddable... W>
-auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, W... widgets)
-{
-    return createAndAdd(parent, sizer, flags, std::make_tuple(widgets...));
-}
+struct Sizer {
+    Sizer(wxOrientation orientation, wxSizerFlags flags, W... widgets)
+        : orientation(orientation)
+        , flags(flags)
+        , widgets(std::make_tuple(widgets...))
+    {
+    }
+
+    auto createAndAdd(wxWindow* parent)
+    {
+        auto* sizer = new wxBoxSizer(orientation);
+        ::createAndAdd(parent, sizer, flags, widgets);
+        return sizer;
+    }
+
+    wxOrientation orientation;
+    wxSizerFlags flags;
+    std::tuple<W...> widgets;
+};
 
 using TextCtrl = Widget<wxTextCtrl>;
 using Button = Widget<wxButton>;
@@ -95,21 +110,23 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 {
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
 
-    auto* sizerUpper = new wxBoxSizer(wxHORIZONTAL);
-    createAndAdd(this,
-        sizerUpper,
+    auto* sizerUpper = Sizer {
+        wxHORIZONTAL,
         wxSizerFlags().Border(),
         Button { wxID_ANY, "Click" },
-        TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() });
+        TextCtrl {
+            wxID_ANY, "Dog", wxSizerFlags(1).Border() }
+    }.createAndAdd(this);
 
     topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
 
-    auto* sizerLower = new wxBoxSizer(wxHORIZONTAL);
-    createAndAdd(this,
-        sizerLower,
+    auto* sizerLower = Sizer {
+        wxHORIZONTAL,
         wxSizerFlags().Border(),
         Text { wxID_ANY, "Cat" },
-        Button { wxID_EXIT, "Done" });
+        Button {
+            wxID_EXIT, "Done" }
+    }.createAndAdd(this);
 
     topSizer->Add(sizerLower, wxSizerFlags().Border());
 
