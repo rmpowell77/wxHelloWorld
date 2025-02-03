@@ -101,6 +101,13 @@ struct Sizer {
         return sizer;
     }
 
+    auto fitTo(wxWindow* parent)
+    {
+        auto* sizer = createAndAdd(parent, flags.value_or(wxSizerFlags()));
+        parent->SetSizerAndFit(sizer);
+        return sizer;
+    }
+
     wxOrientation orientation;
     std::optional<wxSizerFlags> flags;
     std::tuple<W...> widgets;
@@ -151,18 +158,16 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     CreateStatusBar(1);
     using namespace DeclarativeUI;
     // Create and layout the controls.
-    auto* sizer = VSizer {
+    VSizer {
+        wxSizerFlags().Border(),
         HSizer {
             wxSizerFlags().Border().Expand(),
             Button { wxID_ANY, "Click" },
             TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() } },
         HSizer {
-            wxSizerFlags().Border(),
             Text { wxID_ANY, "Cat" },
             Button { wxID_EXIT, "Done" } }
-    }.createAndAdd(this, wxSizerFlags().Border());
-
-    SetSizerAndFit(sizer);
+    }.fitTo(this);
 }
 
 void MyFrame::OnExit([[maybe_unused]] wxCommandEvent& event)
