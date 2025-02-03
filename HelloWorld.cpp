@@ -62,32 +62,39 @@ private:
     std::optional<wxSizerFlags> flags_;
 };
 
+template <typename... W>
+auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, std::tuple<W...> widgets)
+{
+    std::apply([parent, sizer, flags](auto&&... tupleArg) {
+        (tupleArg.createAndAdd(parent, sizer, flags), ...);
+    },
+        widgets);
+}
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerUpper = new wxBoxSizer(wxHORIZONTAL);
-    auto upperWidgets = std::tuple {
-        Widget<wxButton> { wxID_ANY, "Click" },
-        Widget<wxTextCtrl> { wxID_ANY, "Dog", wxSizerFlags(1).Border() },
-    };
-    std::apply([this, sizer = sizerUpper, flags = wxSizerFlags().Border()](auto&&... tupleArg) {
-        (tupleArg.createAndAdd(this, sizer, flags), ...);
-    },
-        upperWidgets);
+    createAndAdd(this,
+        sizerUpper,
+        wxSizerFlags().Border(),
+        std::tuple {
+            Widget<wxButton> { wxID_ANY, "Click" },
+            Widget<wxTextCtrl> { wxID_ANY, "Dog", wxSizerFlags(1).Border() },
+        });
 
     topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
 
     auto* sizerLower = new wxBoxSizer(wxHORIZONTAL);
-    auto lowerWidgets = std::tuple {
-        Widget<wxStaticText> { wxID_ANY, "Cat" },
-        Widget<wxButton> { wxID_EXIT, "Done" },
-    };
-    std::apply([this, sizer = sizerLower, flags = wxSizerFlags().Border()](auto&&... tupleArg) {
-        (tupleArg.createAndAdd(this, sizer, flags), ...);
-    },
-        lowerWidgets);
+    createAndAdd(this,
+        sizerLower,
+        wxSizerFlags().Border(),
+        std::tuple {
+            Widget<wxStaticText> { wxID_ANY, "Cat" },
+            Widget<wxButton> { wxID_EXIT, "Done" },
+        });
 
     topSizer->Add(sizerLower, wxSizerFlags().Border());
 
