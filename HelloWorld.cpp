@@ -78,11 +78,17 @@ struct Sizer {
     {
     }
 
+    Sizer(wxOrientation orientation, W... widgets)
+        : orientation(orientation)
+        , widgets(std::make_tuple(widgets...))
+    {
+    }
+
     auto createAndAdd(wxWindow* parent, wxSizer* parentSizer, wxSizerFlags parentFlags)
     {
         auto* sizer = new wxBoxSizer(orientation);
-        std::apply([this, parent, sizer](auto&&... tupleArg) {
-            (tupleArg.createAndAdd(parent, sizer, flags), ...);
+        std::apply([this, parent, sizer, parentFlags](auto&&... tupleArg) {
+            (tupleArg.createAndAdd(parent, sizer, flags.value_or(parentFlags)), ...);
         },
             widgets);
         parentSizer->Add(sizer, parentFlags);
@@ -90,7 +96,7 @@ struct Sizer {
     }
 
     wxOrientation orientation;
-    wxSizerFlags flags;
+    std::optional<wxSizerFlags> flags;
     std::tuple<W...> widgets;
 };
 
@@ -114,14 +120,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
     Sizer {
         wxHORIZONTAL,
-        wxSizerFlags().Border(),
         Button { wxID_ANY, "Click" },
         TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() }
     }.createAndAdd(this, sizer, wxSizerFlags().Border().Expand());
 
     Sizer {
         wxHORIZONTAL,
-        wxSizerFlags().Border(),
         Text { wxID_ANY, "Cat" },
         Button { wxID_EXIT, "Done" }
     }.createAndAdd(this, sizer, wxSizerFlags().Border());
