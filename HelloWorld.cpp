@@ -164,6 +164,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
             Button { "Left" },
             Text { "Cat" },
         },
+        Button { "Exit" },
     }
         .attachTo(this);
 }
