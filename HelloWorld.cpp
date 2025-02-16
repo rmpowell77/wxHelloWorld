@@ -256,6 +256,39 @@ private:
     }
 };
 
+struct Slider : details::Widget<Slider> {
+    using super = details::Widget<Slider>;
+    explicit Slider(std::pair<int, int> range, std::optional<wxSizerFlags> flags = {})
+        : Slider(wxID_ANY, range, range.first, flags)
+    {
+    }
+
+    explicit Slider(std::pair<int, int> range, int value, std::optional<wxSizerFlags> flags = {})
+        : Slider(wxID_ANY, range, value, flags)
+    {
+    }
+
+    explicit Slider(wxWindowID id, std::pair<int, int> range, std::optional<wxSizerFlags> flags = {})
+        : Slider(id, range, range.first, flags)
+    {
+    }
+
+    explicit Slider(wxWindowID id, std::pair<int, int> range, int value, std::optional<wxSizerFlags> flags = {})
+        : super(id, std::string {}, flags)
+        , range(range)
+        , value(value)
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const&, wxPoint pos, wxSize size) -> wxWindow*
+    {
+        return new wxSlider(parent, id, value, range.first, range.second, pos, size);
+    }
+    std::pair<int, int> range;
+    int value;
+};
+
 #define UNITTEST(WIDGET)                               \
     do {                                               \
         WIDGET {};                                     \
@@ -273,6 +306,14 @@ void UnitTest()
     UNITTEST(TextCtrl);
     UNITTEST(Button);
     UNITTEST(Text);
+    Slider { { 1, 10 } };
+    Slider { { 1, 10 }, 3 };
+    Slider { wxID_ANY, { 1, 10 } };
+    Slider { wxID_ANY, { 1, 10 }, 3 };
+    Slider { { 1, 10 }, wxSizerFlags {} };
+    Slider { { 1, 10 }, 3, wxSizerFlags {} };
+    Slider { wxID_ANY, { 1, 10 }, wxSizerFlags {} };
+    Slider { wxID_ANY, { 1, 10 }, 3, wxSizerFlags {} };
 }
 
 }
@@ -331,6 +372,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
             Button { "Left" },
             Text { "Cat" },
         },
+        Slider { { 1, 10 }, 3 },
         Button { wxID_EXIT, "Exit" },
     }
         .attachTo(this);
