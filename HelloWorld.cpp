@@ -19,9 +19,28 @@ namespace DeclarativeUI::details {
 
 template <typename W>
 struct Widget {
-    Widget(wxWindowID id, std::string str, std::optional<wxSizerFlags> flags = {})
+    explicit Widget(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
         : id(id)
         , str(std::move(str))
+        , flags(flags)
+    {
+    }
+
+    Widget(wxWindowID id, std::optional<wxSizerFlags> flags)
+        : id(id)
+        , flags(flags)
+    {
+    }
+
+    explicit Widget(std::string str, std::optional<wxSizerFlags> flags = {})
+        : id(wxID_ANY)
+        , str(std::move(str))
+        , flags(flags)
+    {
+    }
+
+    explicit Widget(std::optional<wxSizerFlags> flags)
+        : id(wxID_ANY)
         , flags(flags)
     {
     }
@@ -160,12 +179,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     VSizer {
         wxSizerFlags().Expand().Border(),
         HSizer {
-            TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Expand().Border() },
-            Button { wxID_ANY, "Right" },
+            TextCtrl { "Dog", wxSizerFlags(1).Expand().Border() },
+            Button { "Right" },
         },
         HSizer {
-            Button { wxID_ANY, "Left" },
-            Text { wxID_ANY, "Cat" },
+            Button { "Left" },
+            Text { "Cat" },
         },
         Button { wxID_EXIT, "Exit" },
     }
