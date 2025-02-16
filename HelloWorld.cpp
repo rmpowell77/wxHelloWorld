@@ -207,7 +207,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxSizerFlags().Expand().Border(),
         HSizer {
             TextCtrl { wxSizerFlags(1).Expand().Border() }
-                .withSize(wxSize { 0, 0 }),
+                .withSize(wxSize { 64, -1 }),
             Button { "Right" },
         },
         HSizer {
