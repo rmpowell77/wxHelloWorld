@@ -25,7 +25,6 @@ struct overloaded : Ts... {
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-template <typename W>
 struct Widget {
     explicit Widget(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
         : id(id)
@@ -56,36 +55,38 @@ struct Widget {
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
         sizer->Add(
-            bindHandler(new W(parent, id, str, position, size)),
+            bindHandler(create(parent, id, str, position, size)),
             flags ? *flags : parentFlags);
     }
 
-    auto withSize(wxSize size_) -> Widget<W>&
+    auto withSize(wxSize size_) -> Widget&
     {
         size = size_;
         return *this;
     }
 
-    auto withWidth(int size_) -> Widget<W>&
+    auto withWidth(int size_) -> Widget&
     {
         size.SetWidth(size_);
         return *this;
     }
 
-    auto withHeight(int size_) -> Widget<W>&
+    auto withHeight(int size_) -> Widget&
     {
         size.SetHeight(size_);
         return *this;
     }
 
     using Handler = std::variant<std::function<void(wxCommandEvent&)>, std::function<void()>>;
-    auto bind(Handler handler) -> Widget<W>&
+    auto bind(Handler handler) -> Widget&
     {
         boundedHandler = handler;
         return *this;
     }
 
 private:
+    virtual auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow* = 0;
+
     wxWindowID id;
     wxPoint position = wxDefaultPosition;
     wxSize size = wxDefaultSize;
@@ -186,9 +187,92 @@ struct VSizer : details::Sizer<W...> {
     }
 };
 
-using TextCtrl = details::Widget<wxTextCtrl>;
-using Button = details::Widget<wxButton>;
-using Text = details::Widget<wxStaticText>;
+struct TextCtrl : details::Widget {
+    using super = details::Widget;
+    explicit TextCtrl(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
+        : super(id, std::move(str), flags)
+    {
+    }
+
+    explicit TextCtrl(wxWindowID id, std::optional<wxSizerFlags> flags)
+        : super(id, std::string {}, flags)
+    {
+    }
+
+    explicit TextCtrl(std::string str, std::optional<wxSizerFlags> flags = {})
+        : super(wxID_ANY, std::move(str), flags)
+    {
+    }
+
+    explicit TextCtrl(std::optional<wxSizerFlags> flags)
+        : super(wxID_ANY, std::string {}, flags)
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow*
+    {
+        return new wxTextCtrl(parent, id, str, pos, size);
+    }
+};
+
+struct Button : details::Widget {
+    using super = details::Widget;
+    explicit Button(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
+        : super(id, std::move(str), flags)
+    {
+    }
+
+    explicit Button(wxWindowID id, std::optional<wxSizerFlags> flags)
+        : super(id, std::string {}, flags)
+    {
+    }
+
+    explicit Button(std::string str, std::optional<wxSizerFlags> flags = {})
+        : super(wxID_ANY, std::move(str), flags)
+    {
+    }
+
+    explicit Button(std::optional<wxSizerFlags> flags)
+        : super(wxID_ANY, std::string {}, flags)
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow*
+    {
+        return new wxButton(parent, id, str, pos, size);
+    }
+};
+
+struct Text : details::Widget {
+    using super = details::Widget;
+    explicit Text(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
+        : super(id, std::move(str), flags)
+    {
+    }
+
+    explicit Text(wxWindowID id, std::optional<wxSizerFlags> flags)
+        : super(id, std::string {}, flags)
+    {
+    }
+
+    explicit Text(std::string str, std::optional<wxSizerFlags> flags = {})
+        : super(wxID_ANY, std::move(str), flags)
+    {
+    }
+
+    explicit Text(std::optional<wxSizerFlags> flags)
+        : super(wxID_ANY, std::string {}, flags)
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow*
+    {
+        return new wxStaticText(parent, id, str, pos, size);
+    }
+};
 
 #define UNITTEST(WIDGET)                               \
     do {                                               \
