@@ -56,6 +56,18 @@ struct Widget {
         return *this;
     }
 
+    auto withWidth(int size_) -> Widget<W>&
+    {
+        size.SetWidth(size_);
+        return *this;
+    }
+
+    auto withHeight(int size_) -> Widget<W>&
+    {
+        size.SetHeight(size_);
+        return *this;
+    }
+
 private:
     wxWindowID id;
     wxPoint position = wxDefaultPosition;
@@ -207,7 +219,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxSizerFlags().Expand().Border(),
         HSizer {
             TextCtrl { wxSizerFlags(1).Expand().Border() }
-                .withSize(wxSize { 64, -1 }),
+                .withWidth(64),
             Button { "Right" },
         },
         HSizer {
