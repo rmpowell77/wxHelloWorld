@@ -50,9 +50,10 @@ struct Widget {
         sizer->Add(new W(parent, id, str, position, size), flags ? *flags : parentFlags);
     }
 
-    void withSize(wxSize size_)
+    auto withSize(wxSize size_) -> Widget<W>&
     {
         size = size_;
+        return *this;
     }
 
 private:
