@@ -140,8 +140,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     VSizer {
         wxSizerFlags().Expand().Border(),
         HSizer {
-            Widget<wxTextCtrl> { "Dog",
-                wxSizerFlags(1).Expand().Border() },
+            Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
             Widget<wxButton> { "Right" },
         },
         HSizer {
