@@ -25,6 +25,7 @@ struct overloaded : Ts... {
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
+template <typename W>
 struct Widget {
     explicit Widget(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
         : id(id)
@@ -59,29 +60,29 @@ struct Widget {
             flags ? *flags : parentFlags);
     }
 
-    auto withSize(wxSize size_) -> Widget&
+    auto withSize(wxSize size_) -> W&
     {
         size = size_;
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withWidth(int size_) -> Widget&
+    auto withWidth(int size_) -> W&
     {
         size.SetWidth(size_);
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withHeight(int size_) -> Widget&
+    auto withHeight(int size_) -> W&
     {
         size.SetHeight(size_);
-        return *this;
+        return static_cast<W&>(*this);
     }
 
     using Handler = std::variant<std::function<void(wxCommandEvent&)>, std::function<void()>>;
-    auto bind(Handler handler) -> Widget&
+    auto bind(Handler handler) -> W&
     {
         boundedHandler = handler;
-        return *this;
+        return static_cast<W&>(*this);
     }
 
 private:
@@ -187,8 +188,8 @@ struct VSizer : details::Sizer<W...> {
     }
 };
 
-struct TextCtrl : details::Widget {
-    using super = details::Widget;
+struct TextCtrl : details::Widget<TextCtrl> {
+    using super = details::Widget<TextCtrl>;
     explicit TextCtrl(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
         : super(id, std::move(str), flags)
     {
@@ -216,8 +217,8 @@ private:
     }
 };
 
-struct Button : details::Widget {
-    using super = details::Widget;
+struct Button : details::Widget<Button> {
+    using super = details::Widget<Button>;
     explicit Button(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
         : super(id, std::move(str), flags)
     {
@@ -245,8 +246,8 @@ private:
     }
 };
 
-struct Text : details::Widget {
-    using super = details::Widget;
+struct Text : details::Widget<Text> {
+    using super = details::Widget<Text>;
     explicit Text(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
         : super(id, std::move(str), flags)
     {
