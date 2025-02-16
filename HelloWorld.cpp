@@ -19,18 +19,20 @@ namespace DeclarativeUI::details {
 
 template <typename W>
 struct Widget {
-    explicit Widget(std::string str, std::optional<wxSizerFlags> flags = {})
-        : str(std::move(str))
+    Widget(wxWindowID id, std::string str, std::optional<wxSizerFlags> flags = {})
+        : id(id)
+        , str(std::move(str))
         , flags(flags)
     {
     }
 
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
-        sizer->Add(new W(parent, wxID_ANY, str), flags ? *flags : parentFlags);
+        sizer->Add(new W(parent, id, str), flags ? *flags : parentFlags);
     }
 
 private:
+    wxWindowID id;
     std::string str;
     std::optional<wxSizerFlags> flags;
 };
@@ -158,14 +160,14 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     VSizer {
         wxSizerFlags().Expand().Border(),
         HSizer {
-            TextCtrl { "Dog", wxSizerFlags(1).Expand().Border() },
-            Button { "Right" },
+            TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Expand().Border() },
+            Button { wxID_ANY, "Right" },
         },
         HSizer {
-            Button { "Left" },
-            Text { "Cat" },
+            Button { wxID_ANY, "Left" },
+            Text { wxID_ANY, "Cat" },
         },
-        Button { "Exit" },
+        Button { wxID_EXIT, "Exit" },
     }
         .attachTo(this);
 }
