@@ -27,28 +27,9 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 template <typename W>
 struct Widget {
-    explicit Widget(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
+    Widget(wxWindowID id, std::string str, std::optional<wxSizerFlags> flags)
         : id(id)
         , str(std::move(str))
-        , flags(flags)
-    {
-    }
-
-    Widget(wxWindowID id, std::optional<wxSizerFlags> flags)
-        : id(id)
-        , flags(flags)
-    {
-    }
-
-    explicit Widget(std::string str, std::optional<wxSizerFlags> flags = {})
-        : id(wxID_ANY)
-        , str(std::move(str))
-        , flags(flags)
-    {
-    }
-
-    explicit Widget(std::optional<wxSizerFlags> flags)
-        : id(wxID_ANY)
         , flags(flags)
     {
     }
@@ -196,17 +177,17 @@ struct TextCtrl : details::Widget<TextCtrl> {
     }
 
     explicit TextCtrl(wxWindowID id, std::optional<wxSizerFlags> flags)
-        : super(id, std::string {}, flags)
+        : TextCtrl(id, std::string {}, flags)
     {
     }
 
     explicit TextCtrl(std::string str, std::optional<wxSizerFlags> flags = {})
-        : super(wxID_ANY, std::move(str), flags)
+        : TextCtrl(wxID_ANY, std::move(str), flags)
     {
     }
 
     explicit TextCtrl(std::optional<wxSizerFlags> flags)
-        : super(wxID_ANY, std::string {}, flags)
+        : TextCtrl(wxID_ANY, std::string {}, flags)
     {
     }
 
@@ -225,17 +206,17 @@ struct Button : details::Widget<Button> {
     }
 
     explicit Button(wxWindowID id, std::optional<wxSizerFlags> flags)
-        : super(id, std::string {}, flags)
+        : Button(id, std::string {}, flags)
     {
     }
 
     explicit Button(std::string str, std::optional<wxSizerFlags> flags = {})
-        : super(wxID_ANY, std::move(str), flags)
+        : Button(wxID_ANY, std::move(str), flags)
     {
     }
 
     explicit Button(std::optional<wxSizerFlags> flags)
-        : super(wxID_ANY, std::string {}, flags)
+        : Button(wxID_ANY, std::string {}, flags)
     {
     }
 
@@ -254,17 +235,17 @@ struct Text : details::Widget<Text> {
     }
 
     explicit Text(wxWindowID id, std::optional<wxSizerFlags> flags)
-        : super(id, std::string {}, flags)
+        : Text(id, std::string {}, flags)
     {
     }
 
     explicit Text(std::string str, std::optional<wxSizerFlags> flags = {})
-        : super(wxID_ANY, std::move(str), flags)
+        : Text(wxID_ANY, std::move(str), flags)
     {
     }
 
     explicit Text(std::optional<wxSizerFlags> flags)
-        : super(wxID_ANY, std::string {}, flags)
+        : Text(wxID_ANY, std::string {}, flags)
     {
     }
 
