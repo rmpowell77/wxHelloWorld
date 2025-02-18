@@ -133,6 +133,17 @@ using TextCtrl = details::Widget<wxTextCtrl>;
 using Button = details::Widget<wxButton>;
 using Text = details::Widget<wxStaticText>;
 
+void UnitTest()
+{
+    TextCtrl {};
+    TextCtrl { wxID_ANY };
+    TextCtrl { "Hello" };
+    TextCtrl { wxID_ANY, "Hello" };
+    TextCtrl { wxSizerFlags {} };
+    TextCtrl { wxID_ANY, wxSizerFlags {} };
+    TextCtrl { "Hello", wxSizerFlags {} };
+    TextCtrl { wxID_ANY, "Hello", wxSizerFlags {} };
+}
 }
 
 class MyApp : public wxApp {
