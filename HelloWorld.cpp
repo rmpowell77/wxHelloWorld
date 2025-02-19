@@ -13,6 +13,10 @@ concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) 
     widget.createAndAdd(window, sizer, wxSizerFlags {});
 };
 
+}
+
+namespace DeclarativeUI::details {
+
 template <typename W>
 struct Widget {
     explicit Widget(std::string str, std::optional<wxSizerFlags> flags = {})
@@ -74,33 +78,39 @@ private:
     std::tuple<W...> widgets;
 };
 
+}
+
+namespace DeclarativeUI {
+
 template <CreateAndAddable... W>
-struct HSizer : Sizer<W...> {
+struct HSizer : details::Sizer<W...> {
+    using super = details::Sizer<W...>;
     HSizer(W... widgets)
-        : Sizer<W...>(wxHORIZONTAL, widgets...)
+        : super(wxHORIZONTAL, widgets...)
     {
     }
     HSizer(wxSizerFlags flags, W... widgets)
-        : Sizer<W...>(wxHORIZONTAL, flags, widgets...)
+        : super(wxHORIZONTAL, flags, widgets...)
     {
     }
 };
 
 template <CreateAndAddable... W>
-struct VSizer : Sizer<W...> {
+struct VSizer : details::Sizer<W...> {
+    using super = details::Sizer<W...>;
     VSizer(W... widgets)
-        : Sizer<W...>(wxVERTICAL, widgets...)
+        : super(wxVERTICAL, widgets...)
     {
     }
     VSizer(wxSizerFlags flags, W... widgets)
-        : Sizer<W...>(wxVERTICAL, flags, widgets...)
+        : super(wxVERTICAL, flags, widgets...)
     {
     }
 };
 
-using TextCtrl = Widget<wxTextCtrl>;
-using Button = Widget<wxButton>;
-using Text = Widget<wxStaticText>;
+using TextCtrl = details::Widget<wxTextCtrl>;
+using Button = details::Widget<wxButton>;
+using Text = details::Widget<wxStaticText>;
 
 }
 
