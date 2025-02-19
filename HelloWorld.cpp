@@ -26,6 +26,7 @@ struct Widget {
         sizer->Add(new W(parent, wxID_ANY, str), flags ? *flags : parentFlags);
     }
 
+private:
     std::string str;
     std::optional<wxSizerFlags> flags;
 };
@@ -67,6 +68,7 @@ struct Sizer {
         return sizer;
     }
 
+private:
     wxOrientation orientation;
     std::optional<wxSizerFlags> flags;
     std::tuple<W...> widgets;
