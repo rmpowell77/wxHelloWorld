@@ -97,6 +97,11 @@ struct VSizer : Sizer<W...> {
     {
     }
 };
+
+using TextCtrl = Widget<wxTextCtrl>;
+using Button = Widget<wxButton>;
+using Text = Widget<wxStaticText>;
+
 }
 
 class MyApp : public wxApp {
@@ -142,12 +147,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     VSizer {
         wxSizerFlags().Expand().Border(),
         HSizer {
-            Widget<wxTextCtrl> { "Dog", wxSizerFlags(1).Expand().Border() },
-            Widget<wxButton> { "Right" },
+            TextCtrl { "Dog", wxSizerFlags(1).Expand().Border() },
+            Button { "Right" },
         },
         HSizer {
-            Widget<wxButton> { "Left" },
-            Widget<wxStaticText> { "Cat" },
+            Button { "Left" },
+            Text { "Cat" },
         },
     }
         .attachTo(this);
