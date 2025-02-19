@@ -27,9 +27,8 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 template <typename W>
 struct Widget {
-    Widget(wxWindowID id, std::string str, std::optional<wxSizerFlags> flags)
+    Widget(wxWindowID id, std::optional<wxSizerFlags> flags)
         : id(id)
-        , str(std::move(str))
         , flags(flags)
     {
     }
@@ -37,7 +36,7 @@ struct Widget {
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
         sizer->Add(
-            bindHandler(create(parent, id, str, position, size)),
+            bindHandler(create(parent, id, position, size)),
             flags ? *flags : parentFlags);
     }
 
@@ -67,12 +66,11 @@ struct Widget {
     }
 
 private:
-    virtual auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow* = 0;
+    virtual auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size) -> wxWindow* = 0;
 
     wxWindowID id;
     wxPoint position = wxDefaultPosition;
     wxSize size = wxDefaultSize;
-    std::string str;
     std::optional<wxSizerFlags> flags;
     std::optional<Handler> boundedHandler;
 
@@ -171,8 +169,9 @@ struct VSizer : details::Sizer<W...> {
 
 struct TextCtrl : details::Widget<TextCtrl> {
     using super = details::Widget<TextCtrl>;
-    explicit TextCtrl(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
-        : super(id, std::move(str), flags)
+    explicit TextCtrl(wxWindowID id = wxID_ANY, std::string value = std::string {}, std::optional<wxSizerFlags> flags = {})
+        : super(id, flags)
+        , value(value)
     {
     }
 
@@ -192,16 +191,18 @@ struct TextCtrl : details::Widget<TextCtrl> {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size) -> wxWindow*
     {
-        return new wxTextCtrl(parent, id, str, pos, size);
+        return new wxTextCtrl(parent, id, value, pos, size);
     }
+    std::string value;
 };
 
 struct Button : details::Widget<Button> {
     using super = details::Widget<Button>;
-    explicit Button(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
-        : super(id, std::move(str), flags)
+    explicit Button(wxWindowID id = wxID_ANY, std::string label = std::string {}, std::optional<wxSizerFlags> flags = {})
+        : super(id, flags)
+        , label(label)
     {
     }
 
@@ -221,16 +222,18 @@ struct Button : details::Widget<Button> {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size) -> wxWindow*
     {
-        return new wxButton(parent, id, str, pos, size);
+        return new wxButton(parent, id, label, pos, size);
     }
+    std::string label;
 };
 
 struct Text : details::Widget<Text> {
     using super = details::Widget<Text>;
-    explicit Text(wxWindowID id = wxID_ANY, std::string str = std::string {}, std::optional<wxSizerFlags> flags = {})
-        : super(id, std::move(str), flags)
+    explicit Text(wxWindowID id = wxID_ANY, std::string label = std::string {}, std::optional<wxSizerFlags> flags = {})
+        : super(id, flags)
+        , label(label)
     {
     }
 
@@ -250,10 +253,11 @@ struct Text : details::Widget<Text> {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size) -> wxWindow*
     {
-        return new wxStaticText(parent, id, str, pos, size);
+        return new wxStaticText(parent, id, label, pos, size);
     }
+    std::string label;
 };
 
 struct Slider : details::Widget<Slider> {
@@ -274,14 +278,14 @@ struct Slider : details::Widget<Slider> {
     }
 
     explicit Slider(wxWindowID id, std::pair<int, int> range, int value, std::optional<wxSizerFlags> flags = {})
-        : super(id, std::string {}, flags)
+        : super(id, flags)
         , range(range)
         , value(value)
     {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const&, wxPoint pos, wxSize size) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size) -> wxWindow*
     {
         return new wxSlider(parent, id, value, range.first, range.second, pos, size);
     }
