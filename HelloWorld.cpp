@@ -47,7 +47,9 @@ struct Widget {
 
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
-        sizer->Add(new W(parent, id, str, position, size), flags ? *flags : parentFlags);
+        sizer->Add(
+            bindHandler(new W(parent, id, str, position, size)),
+            flags ? *flags : parentFlags);
     }
 
     auto withSize(wxSize size_) -> Widget<W>&
@@ -68,12 +70,28 @@ struct Widget {
         return *this;
     }
 
+    using Handler = std::function<void(wxCommandEvent&)>;
+    auto bind(Handler handler) -> Widget<W>&
+    {
+        boundedHandler = handler;
+        return *this;
+    }
+
 private:
     wxWindowID id;
     wxPoint position = wxDefaultPosition;
     wxSize size = wxDefaultSize;
     std::string str;
     std::optional<wxSizerFlags> flags;
+    std::optional<Handler> boundedHandler;
+
+    auto bindHandler(wxWindow* widget) -> wxWindow*
+    {
+        if (boundedHandler) {
+            widget->Bind(wxEVT_BUTTON, *boundedHandler);
+        }
+        return widget;
+    }
 };
 
 template <CreateAndAddable... W>
@@ -220,7 +238,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         HSizer {
             TextCtrl { wxSizerFlags(1).Expand().Border() }
                 .withWidth(64),
-            Button { "Right" },
+            Button { "Right" }.bind([](wxCommandEvent&) {
+                wxLogMessage("Hello world from wxWidgets!");
+            }),
         },
         HSizer {
             Button { "Left" },
