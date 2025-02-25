@@ -4,6 +4,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+#include <map>
 #include <optional>
 #include <variant>
 
@@ -36,7 +37,7 @@ struct Widget {
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
         sizer->Add(
-            bindHandler(create(parent, id, position, size)),
+            bindHandlers(create(parent, id, position, size)),
             flags ? *flags : parentFlags);
     }
 
@@ -59,9 +60,11 @@ struct Widget {
     }
 
     using Handler = std::variant<std::function<void(wxCommandEvent&)>, std::function<void()>>;
-    auto bind(Handler handler) -> W&
+
+protected:
+    auto bind(wxEventTypeTag<wxCommandEvent> event, Handler handler) -> W&
     {
-        boundedHandler = handler;
+        boundedHandlers[event] = handler;
         return static_cast<W&>(*this);
     }
 
@@ -72,23 +75,23 @@ private:
     wxPoint position = wxDefaultPosition;
     wxSize size = wxDefaultSize;
     std::optional<wxSizerFlags> flags;
-    std::optional<Handler> boundedHandler;
+    std::map<wxEventTypeTag<wxCommandEvent>, Handler> boundedHandlers;
 
-    auto bindHandler(wxWindow* widget) -> wxWindow*
+    auto bindHandlers(wxWindow* widget) -> wxWindow*
     {
-        if (boundedHandler) {
+        for (auto&& [event, func] : boundedHandlers) {
             std::visit(
                 details::overloaded {
-                    [&widget](std::function<void(wxCommandEvent&)> func) {
-                        widget->Bind(wxEVT_BUTTON, func);
+                    [&widget, &event](std::function<void(wxCommandEvent&)> func) {
+                        widget->Bind(event, func);
                     },
-                    [&widget](std::function<void()> func) {
-                        widget->Bind(wxEVT_BUTTON, [func](wxCommandEvent&) {
+                    [&widget, &event](std::function<void()> func) {
+                        widget->Bind(event, [func](wxCommandEvent&) {
                             func();
                         });
                     },
                 },
-                *boundedHandler);
+                func);
         }
         return widget;
     }
@@ -221,6 +224,11 @@ struct Button : details::Widget<Button> {
     {
     }
 
+    auto bind(Handler handler) -> Button&
+    {
+        return super::bind(wxEVT_BUTTON, handler);
+    }
+
 private:
     auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size) -> wxWindow*
     {
@@ -282,6 +290,11 @@ struct Slider : details::Widget<Slider> {
         , range(range)
         , value(value)
     {
+    }
+
+    auto bind(Handler handler) -> Slider&
+    {
+        return super::bind(wxEVT_SLIDER, handler);
     }
 
 private:
