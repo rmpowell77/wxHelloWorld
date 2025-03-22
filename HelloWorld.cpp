@@ -47,11 +47,18 @@ struct Widget {
 
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags parentFlags)
     {
-        sizer->Add(new W(parent, id, str), flags ? *flags : parentFlags);
+        sizer->Add(new W(parent, id, str, position, size), flags ? *flags : parentFlags);
+    }
+
+    void withSize(wxSize size_)
+    {
+        size = size_;
     }
 
 private:
     wxWindowID id;
+    wxPoint position = wxDefaultPosition;
+    wxSize size = wxDefaultSize;
     std::string str;
     std::optional<wxSizerFlags> flags;
 };
@@ -198,7 +205,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     VSizer {
         wxSizerFlags().Expand().Border(),
         HSizer {
-            TextCtrl { wxSizerFlags(1).Expand().Border() },
+            TextCtrl { wxSizerFlags(1).Expand().Border() }
+                .withSize(wxSize { 0, 0 }),
             Button { "Right" },
         },
         HSizer {
