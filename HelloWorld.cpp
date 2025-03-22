@@ -361,6 +361,8 @@ bool MyApp::OnInit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
+    CreateStatusBar(1);
+
     using namespace DeclarativeUI;
     // Create and layout the controls.
     VSizer {
@@ -376,7 +378,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
             Button { "Left" },
             Text { "Cat" },
         },
-        Slider { { 1, 10 }, 3 },
+        Slider { { 1, 10 }, 3 }.bind([this](wxCommandEvent& event) {
+            SetStatusText(std::to_string(event.GetInt()));
+        }),
         Button { wxID_EXIT, "Exit" },
     }
         .attachTo(this);
