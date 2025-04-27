@@ -88,6 +88,10 @@ using TextCtrl = Widget<wxTextCtrl>;
 using Button = Widget<wxButton>;
 using Text = Widget<wxStaticText>;
 
+static_assert(CreateAndAddable<TextCtrl>);
+static_assert(CreateAndAddable<Button>);
+static_assert(CreateAndAddable<Text>);
+
 }
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
