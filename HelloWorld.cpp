@@ -91,10 +91,16 @@ struct Sizer {
     {
     }
 
-    auto createAndAdd(wxWindow* parent, wxSizer* parentSizer, wxSizerFlags parentFlags)
+    auto createAndAdd(wxWindow* parent, wxSizerFlags parentFlags)
     {
         auto* sizer = new wxBoxSizer(orientation);
         ::createAndAdd(parent, sizer, flags.value_or(parentFlags), widgets);
+        return sizer;
+    }
+
+    auto createAndAdd(wxWindow* parent, wxSizer* parentSizer, wxSizerFlags parentFlags)
+    {
+        auto* sizer = createAndAdd(parent, parentFlags);
         parentSizer->Add(sizer, parentFlags);
         return sizer;
     }
@@ -144,17 +150,16 @@ static_assert(CreateAndAddable<VSizer<HSizer<Button, TextCtrl>, HSizer<Text, But
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    auto* topSizer = new wxBoxSizer(wxVERTICAL);
-
-    HSizer {
-        Button { wxID_ANY, "Click" },
-        TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() }
-    }.createAndAdd(this, topSizer, wxSizerFlags().Border().Expand());
-
-    HSizer {
-        Text { wxID_ANY, "Cat" },
-        Button { wxID_EXIT, "Done" }
-    }.createAndAdd(this, topSizer, wxSizerFlags().Border());
+    auto* topSizer = VSizer {
+        HSizer {
+            wxSizerFlags().Border().Expand(),
+            Button { wxID_ANY, "Click" },
+            TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() } },
+        HSizer {
+            wxSizerFlags().Border(),
+            Text { wxID_ANY, "Cat" },
+            Button { wxID_EXIT, "Done" } }
+    }.createAndAdd(this, wxSizerFlags().Border());
 
     SetSizerAndFit(topSizer);
 }
