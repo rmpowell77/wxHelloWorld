@@ -78,6 +78,11 @@ auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags flags, W... wid
 {
     return createAndAdd(parent, sizer, flags, std::make_tuple(widgets...));
 }
+
+using TextCtrl = Widget<wxTextCtrl>;
+using Button = Widget<wxButton>;
+using Text = Widget<wxStaticText>;
+
 }
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -92,8 +97,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     createAndAdd(this,
         sizerTop,
         wxSizerFlags().Border(),
-        Widget<wxButton> { wxID_ANY, "Click" },
-        Widget<wxTextCtrl> { wxID_ANY, "Dog", wxSizerFlags(1).Border() });
+        Button { wxID_ANY, "Click" },
+        TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() });
 
     sizer->Add(sizerTop, wxSizerFlags().Border().Expand());
 
@@ -101,8 +106,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     createAndAdd(this,
         sizerBottom,
         wxSizerFlags().Border(),
-        Widget<wxStaticText> { wxID_ANY, "Cat" },
-        Widget<wxButton> { wxID_EXIT, "Done" });
+        Text { wxID_ANY, "Cat" },
+        Button { wxID_EXIT, "Done" });
 
     sizer->Add(sizerBottom, wxSizerFlags().Border());
 
