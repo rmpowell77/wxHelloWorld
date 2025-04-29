@@ -75,14 +75,26 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     auto* sizerTop = new wxBoxSizer(wxHORIZONTAL);
-    Widget<wxButton> { wxID_ANY, "Click" }.createAndAdd(this, sizerTop, wxSizerFlags().Border());
-    Widget<wxTextCtrl> { wxID_ANY, "Dog", wxSizerFlags(1).Border() }.createAndAdd(this, sizerTop, wxSizerFlags().Border());
+    auto topWidgets = std::tuple {
+        Widget<wxButton> { wxID_ANY, "Click" },
+        Widget<wxTextCtrl> { wxID_ANY, "Dog", wxSizerFlags(1).Border() },
+    };
+    std::apply([this, sizer = sizerTop](auto&&... tupleArg) {
+        (tupleArg.createAndAdd(this, sizer, wxSizerFlags().Border()), ...);
+    },
+        topWidgets);
 
     sizer->Add(sizerTop, wxSizerFlags().Border().Expand());
 
     auto* sizerBottom = new wxBoxSizer(wxHORIZONTAL);
-    Widget<wxStaticText> { wxID_ANY, "Cat" }.createAndAdd(this, sizerBottom, wxSizerFlags().Border());
-    Widget<wxButton> { wxID_EXIT, "Done" }.createAndAdd(this, sizerBottom, wxSizerFlags().Border());
+    auto bottomWidgets = std::tuple {
+        Widget<wxStaticText> { wxID_ANY, "Cat" },
+        Widget<wxButton> { wxID_EXIT, "Done" },
+    };
+    std::apply([this, sizer = sizerBottom](auto&&... tupleArg) {
+        (tupleArg.createAndAdd(this, sizer, wxSizerFlags().Border()), ...);
+    },
+        bottomWidgets);
 
     sizer->Add(sizerBottom, wxSizerFlags().Border());
 
