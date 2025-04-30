@@ -49,61 +49,57 @@ concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) 
     widget.createAndAdd(window, sizer, wxSizerFlags {});
 };
 
-template <typename W>
 struct Widget {
-    explicit Widget(wxWindowID id = wxID_ANY, std::string str = {})
+    explicit Widget(wxWindowID id, std::string str)
         : id_(id)
         , str_(std::move(str))
     {
     }
 
-    explicit Widget(std::string str)
-        : str_(std::move(str))
-    {
-    }
-
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags suppliedFlags)
     {
-        sizer->Add(new W(parent, id_, str_, pos_, size_, style_), flags_.value_or(suppliedFlags));
+        sizer->Add(create(parent, id_, str_, pos_, size_, style_), flags_.value_or(suppliedFlags));
     }
 
-    auto withFlags(wxSizerFlags flags) -> Widget<W>&
+    auto withFlags(wxSizerFlags flags) -> Widget&
     {
         flags_ = flags;
         return *this;
     }
 
-    auto withPos(wxPoint pos) -> Widget<W>&
+    auto withPos(wxPoint pos) -> Widget&
     {
         pos_ = pos;
         return *this;
     }
 
-    auto withSize(wxSize size) -> Widget<W>&
+    auto withSize(wxSize size) -> Widget&
     {
         size_ = size;
         return *this;
     }
 
-    auto withWidth(int width) -> Widget<W>&
+    auto withWidth(int width) -> Widget&
     {
         size_.SetWidth(width);
         return *this;
     }
 
-    auto withHeight(int height) -> Widget<W>&
+    auto withHeight(int height) -> Widget&
     {
         size_.SetHeight(height);
         return *this;
     }
 
-    auto withStyle(long style) -> Widget<W>&
+    auto withStyle(long style) -> Widget&
     {
         style_ = style;
         return *this;
     }
 
 private:
+    virtual auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow* = 0;
+
     wxWindowID id_ { wxID_ANY };
     std::string str_;
     wxPoint pos_ { wxDefaultPosition };
@@ -180,10 +176,62 @@ struct VSizer : Sizer<W...> {
     }
 };
 
-using TextCtrl = Widget<wxTextCtrl>;
-using Button = Widget<wxButton>;
-using Text = Widget<wxStaticText>;
-using Slider = Widget<wxSlider>;
+struct TextCtrl : Widget {
+    using super = Widget;
+    explicit TextCtrl(wxWindowID id = wxID_ANY, std::string str = std::string {})
+        : super(id, std::move(str))
+    {
+    }
+
+    explicit TextCtrl(std::string str)
+        : TextCtrl(wxID_ANY, std::move(str))
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow*
+    {
+        return new wxTextCtrl(parent, id, str, pos, size, style);
+    }
+};
+
+struct Button : Widget {
+    using super = Widget;
+    explicit Button(wxWindowID id = wxID_ANY, std::string str = std::string {})
+        : super(id, std::move(str))
+    {
+    }
+
+    explicit Button(std::string str)
+        : Button(wxID_ANY, std::move(str))
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow*
+    {
+        return new wxButton(parent, id, str, pos, size, style);
+    }
+};
+
+struct Text : Widget {
+    using super = Widget;
+    explicit Text(wxWindowID id = wxID_ANY, std::string str = std::string {})
+        : super(id, std::move(str))
+    {
+    }
+
+    explicit Text(std::string str)
+        : Text(wxID_ANY, std::move(str))
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow*
+    {
+        return new wxStaticText(parent, id, str, pos, size, style);
+    }
+};
 
 static_assert(CreateAndAddable<TextCtrl>);
 static_assert(CreateAndAddable<Button>);
@@ -210,7 +258,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
             TextCtrl { "Dog" }
                 .withWidth(100)
                 .withFlags(wxSizerFlags(1).Border()) },
-        Slider {},
         HSizer {
             Text { wxID_ANY, "Cat" },
             Button { wxID_EXIT, "Done" } }
