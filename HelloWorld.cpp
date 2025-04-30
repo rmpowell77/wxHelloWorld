@@ -132,6 +132,11 @@ static_assert(CreateAndAddable<TextCtrl>);
 static_assert(CreateAndAddable<Button>);
 static_assert(CreateAndAddable<Text>);
 
+static_assert(CreateAndAddable<HSizer<Button, TextCtrl>>);
+static_assert(CreateAndAddable<HSizer<Text, Button>>);
+
+static_assert(CreateAndAddable<VSizer<HSizer<Button, TextCtrl>, HSizer<Text, Button>>>);
+
 }
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
