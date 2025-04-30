@@ -47,6 +47,7 @@ concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) 
     widget.createAndAdd(window, sizer, wxSizerFlags {});
 };
 
+template <typename W>
 struct Widget {
     explicit Widget(wxWindowID id, std::string str)
         : id_(id)
@@ -59,40 +60,40 @@ struct Widget {
         sizer->Add(create(parent, id_, str_, pos_, size_, style_), flags_.value_or(suppliedFlags));
     }
 
-    auto withFlags(wxSizerFlags flags) -> Widget&
+    auto withFlags(wxSizerFlags flags) -> W&
     {
         flags_ = flags;
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withPos(wxPoint pos) -> Widget&
+    auto withPos(wxPoint pos) -> W&
     {
         pos_ = pos;
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withSize(wxSize size) -> Widget&
+    auto withSize(wxSize size) -> W&
     {
         size_ = size;
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withWidth(int width) -> Widget&
+    auto withWidth(int width) -> W&
     {
         size_.SetWidth(width);
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withHeight(int height) -> Widget&
+    auto withHeight(int height) -> W&
     {
         size_.SetHeight(height);
-        return *this;
+        return static_cast<W&>(*this);
     }
 
-    auto withStyle(long style) -> Widget&
+    auto withStyle(long style) -> W&
     {
         style_ = style;
-        return *this;
+        return static_cast<W&>(*this);
     }
 
 private:
@@ -180,8 +181,8 @@ struct VSizer : Sizer<W...> {
     }
 };
 
-struct TextCtrl : Widget {
-    using super = Widget;
+struct TextCtrl : Widget<TextCtrl> {
+    using super = Widget<TextCtrl>;
     explicit TextCtrl(wxWindowID id = wxID_ANY, std::string str = std::string {})
         : super(id, std::move(str))
     {
@@ -199,8 +200,8 @@ private:
     }
 };
 
-struct Button : Widget {
-    using super = Widget;
+struct Button : Widget<Button> {
+    using super = Widget<Button>;
     explicit Button(wxWindowID id = wxID_ANY, std::string str = std::string {})
         : super(id, std::move(str))
     {
@@ -218,8 +219,8 @@ private:
     }
 };
 
-struct Text : Widget {
-    using super = Widget;
+struct Text : Widget<Text> {
+    using super = Widget<Text>;
     explicit Text(wxWindowID id = wxID_ANY, std::string str = std::string {})
         : super(id, std::move(str))
     {
