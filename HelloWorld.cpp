@@ -187,6 +187,7 @@ struct VSizer : Sizer<W...> {
 using TextCtrl = Widget<wxTextCtrl>;
 using Button = Widget<wxButton>;
 using Text = Widget<wxStaticText>;
+using Slider = Widget<wxSlider>;
 
 static_assert(CreateAndAddable<TextCtrl>);
 static_assert(CreateAndAddable<Button>);
@@ -208,6 +209,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
             TextCtrl { "Dog" }
                 .withWidth(100)
                 .withFlags(wxSizerFlags(1).Border()) },
+        Slider {},
         HSizer {
             Text { wxID_ANY, "Cat" },
             Button { wxID_EXIT, "Done" } }
