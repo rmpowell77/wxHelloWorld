@@ -242,6 +242,29 @@ private:
     std::string str_;
 };
 
+struct Slider : Widget<Slider> {
+    using super = Widget<Slider>;
+    Slider(wxWindowID id, std::pair<int, int> range, std::optional<int> min = std::nullopt)
+        : super(id)
+        , range_(range)
+        , min_(min.value_or(range.first))
+    {
+    }
+
+    explicit Slider(std::pair<int, int> range, std::optional<int> min = std::nullopt)
+        : Slider(wxID_ANY, range, min)
+    {
+    }
+
+private:
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow*
+    {
+        return new wxSlider(parent, id, min_, range_.first, range_.second, pos, size, style);
+    }
+    std::pair<int, int> range_;
+    int min_;
+};
+
 static_assert(CreateAndAddable<TextCtrl>);
 static_assert(CreateAndAddable<Button>);
 static_assert(CreateAndAddable<Text>);
@@ -258,10 +281,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxSizerFlags().Border(),
         HSizer {
             wxSizerFlags().Border().Expand(),
-            Button { "Click" },
-            TextCtrl { "Dog" }
+            Button { wxID_ANY, "Click" },
+            TextCtrl { wxID_ANY, "Dog" }
                 .withWidth(100)
                 .withFlags(wxSizerFlags(1).Border()) },
+        Slider { { 1, 10 }, 3 },
         HSizer {
             Text { wxID_ANY, "Cat" },
             Button { wxID_EXIT, "Done" } }
