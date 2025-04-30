@@ -49,26 +49,64 @@ concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) 
 
 template <typename W>
 struct Widget {
-    Widget(wxWindowID id, std::string str, std::optional<wxSizerFlags> flags = {})
+    explicit Widget(wxWindowID id = wxID_ANY, std::string str = {})
         : id_(id)
         , str_(std::move(str))
-        , flags_(flags)
+    {
+    }
+
+    explicit Widget(std::string str)
+        : str_(std::move(str))
     {
     }
 
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags suppliedFlags)
     {
-        sizer->Add(new W(parent, id_, str_), flags_.value_or(suppliedFlags));
+        sizer->Add(new W(parent, id_, str_, pos_, size_, style_), flags_.value_or(suppliedFlags));
     }
 
-    void withFlags(wxSizerFlags flags)
+    auto withFlags(wxSizerFlags flags) -> Widget<W>&
     {
         flags_ = flags;
+        return *this;
+    }
+
+    auto withPos(wxPoint pos) -> Widget<W>&
+    {
+        pos_ = pos;
+        return *this;
+    }
+
+    auto withSize(wxSize size) -> Widget<W>&
+    {
+        size_ = size;
+        return *this;
+    }
+
+    auto withWidth(int width) -> Widget<W>&
+    {
+        size_.SetWidth(width);
+        return *this;
+    }
+
+    auto withHeight(int height) -> Widget<W>&
+    {
+        size_.SetHeight(height);
+        return *this;
+    }
+
+    auto withStyle(long style) -> Widget<W>&
+    {
+        style_ = style;
+        return *this;
     }
 
 private:
     wxWindowID id_ { wxID_ANY };
     std::string str_;
+    wxPoint pos_ { wxDefaultPosition };
+    wxSize size_ { wxDefaultSize };
+    long style_ { 0 };
     std::optional<wxSizerFlags> flags_;
 };
 
@@ -166,8 +204,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxSizerFlags().Border(),
         HSizer {
             wxSizerFlags().Border().Expand(),
-            Button { wxID_ANY, "Click" },
-            TextCtrl { wxID_ANY, "Dog" }
+            Button { "Click" },
+            TextCtrl { "Dog" }
+                .withWidth(100)
                 .withFlags(wxSizerFlags(1).Border()) },
         HSizer {
             Text { wxID_ANY, "Cat" },
