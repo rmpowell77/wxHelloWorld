@@ -51,15 +51,14 @@ concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) 
 
 template <typename W>
 struct Widget {
-    explicit Widget(wxWindowID id, std::string str)
+    explicit Widget(wxWindowID id)
         : id_(id)
-        , str_(std::move(str))
     {
     }
 
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags suppliedFlags)
     {
-        sizer->Add(create(parent, id_, str_, pos_, size_, style_), flags_.value_or(suppliedFlags));
+        sizer->Add(create(parent, id_, pos_, size_, style_), flags_.value_or(suppliedFlags));
     }
 
     auto withFlags(wxSizerFlags flags) -> W&
@@ -99,10 +98,9 @@ struct Widget {
     }
 
 private:
-    virtual auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow* = 0;
+    virtual auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow* = 0;
 
     wxWindowID id_ { wxID_ANY };
-    std::string str_;
     wxPoint pos_ { wxDefaultPosition };
     wxSize size_ { wxDefaultSize };
     long style_ { 0 };
@@ -180,7 +178,8 @@ struct VSizer : Sizer<W...> {
 struct TextCtrl : Widget<TextCtrl> {
     using super = Widget<TextCtrl>;
     explicit TextCtrl(wxWindowID id = wxID_ANY, std::string str = std::string {})
-        : super(id, std::move(str))
+        : super(id)
+        , str_(std::move(str))
     {
     }
 
@@ -190,16 +189,18 @@ struct TextCtrl : Widget<TextCtrl> {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow*
     {
-        return new wxTextCtrl(parent, id, str, pos, size, style);
+        return new wxTextCtrl(parent, id, str_, pos, size, style);
     }
+    std::string str_;
 };
 
 struct Button : Widget<Button> {
     using super = Widget<Button>;
     explicit Button(wxWindowID id = wxID_ANY, std::string str = std::string {})
-        : super(id, std::move(str))
+        : super(id)
+        , str_(std::move(str))
     {
     }
 
@@ -209,16 +210,18 @@ struct Button : Widget<Button> {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow*
     {
-        return new wxButton(parent, id, str, pos, size, style);
+        return new wxButton(parent, id, str_, pos, size, style);
     }
+    std::string str_;
 };
 
 struct Text : Widget<Text> {
     using super = Widget<Text>;
     explicit Text(wxWindowID id = wxID_ANY, std::string str = std::string {})
-        : super(id, std::move(str))
+        : super(id)
+        , str_(std::move(str))
     {
     }
 
@@ -228,10 +231,11 @@ struct Text : Widget<Text> {
     }
 
 private:
-    auto create(wxWindow* parent, wxWindowID id, std::string const& str, wxPoint pos, wxSize size, long style) -> wxWindow*
+    auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow*
     {
-        return new wxStaticText(parent, id, str, pos, size, style);
+        return new wxStaticText(parent, id, str_, pos, size, style);
     }
+    std::string str_;
 };
 
 static_assert(CreateAndAddable<TextCtrl>);
