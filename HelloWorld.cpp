@@ -4,6 +4,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+#include <map>
 #include <optional>
 
 class MyApp : public wxApp {
@@ -58,7 +59,9 @@ struct Widget {
 
     auto createAndAdd(wxWindow* parent, wxSizer* sizer, wxSizerFlags suppliedFlags)
     {
-        sizer->Add(create(parent, id_, pos_, size_, style_), flags_.value_or(suppliedFlags));
+        sizer->Add(
+            bindHandlers(create(parent, id_, pos_, size_, style_)),
+            flags_.value_or(suppliedFlags));
     }
 
     auto withFlags(wxSizerFlags flags) -> W&
@@ -97,6 +100,15 @@ struct Widget {
         return static_cast<W&>(*this);
     }
 
+    using Handler = std::function<void(wxCommandEvent&)>;
+
+protected:
+    auto bind(wxEventTypeTag<wxCommandEvent> event, Handler handler) -> W&
+    {
+        boundedHandlers[event] = handler;
+        return static_cast<W&>(*this);
+    }
+
 private:
     virtual auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow* = 0;
 
@@ -105,6 +117,15 @@ private:
     wxSize size_ { wxDefaultSize };
     long style_ { 0 };
     std::optional<wxSizerFlags> flags_;
+    std::map<wxEventTypeTag<wxCommandEvent>, Handler> boundedHandlers;
+
+    auto bindHandlers(wxWindow* widget) -> wxWindow*
+    {
+        for (auto&& [event, func] : boundedHandlers) {
+            widget->Bind(event, func);
+        }
+        return widget;
+    }
 };
 
 template <CreateAndAddable... W>
@@ -209,6 +230,11 @@ struct Button : Widget<Button> {
     {
     }
 
+    auto bind(Handler handler) -> Button&
+    {
+        return super::bind(wxEVT_BUTTON, handler);
+    }
+
 private:
     auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow*
     {
@@ -252,6 +278,11 @@ struct Slider : Widget<Slider> {
     {
     }
 
+    auto bind(Handler handler) -> Slider&
+    {
+        return super::bind(wxEVT_SLIDER, handler);
+    }
+
 private:
     auto create(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, long style) -> wxWindow*
     {
@@ -282,11 +313,14 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxSizerFlags().Border(),
         HSizer {
             wxSizerFlags().Border().Expand(),
-            Button { wxID_ANY, "Click" },
+            Button { wxID_ANY, "Click" }.bind([](wxCommandEvent&) {
+                wxLogMessage("Button Clicked!");
+            }),
             TextCtrl { wxID_ANY, "Dog" }
-                .withWidth(100)
                 .withFlags(wxSizerFlags(1).Border()) },
-        Slider { { 1, 10 }, 3 },
+        Slider { { 1, 10 }, 3 }.bind([this](wxCommandEvent& event) {
+            SetStatusText(std::to_string(event.GetInt()));
+        }),
         HSizer {
             Text { wxID_ANY, "Cat" },
             Button { wxID_EXIT, "Done" } }
