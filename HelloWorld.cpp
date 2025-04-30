@@ -63,6 +63,11 @@ struct Widget {
         sizer->Add(new W(parent, id_, str_), flags_.value_or(suppliedFlags));
     }
 
+    void withFlags(wxSizerFlags flags)
+    {
+        flags_ = flags;
+    }
+
 private:
     wxWindowID id_ { wxID_ANY };
     std::string str_;
@@ -163,7 +168,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         HSizer {
             wxSizerFlags().Border().Expand(),
             Button { wxID_ANY, "Click" },
-            TextCtrl { wxID_ANY, "Dog", wxSizerFlags(1).Border() } },
+            TextCtrl { wxID_ANY, "Dog" }
+                .withFlags(wxSizerFlags(1).Border()) },
         HSizer {
             Text { wxID_ANY, "Cat" },
             Button { wxID_EXIT, "Done" } }
