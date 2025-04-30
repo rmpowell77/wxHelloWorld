@@ -6,6 +6,7 @@
 #endif
 #include <map>
 #include <optional>
+#include <variant>
 
 class MyApp : public wxApp {
 public:
@@ -44,6 +45,13 @@ bool MyApp::OnInit()
 }
 
 namespace DeclarativeUI {
+
+template <class... Ts>
+struct overloaded : Ts... {
+    using Ts::operator()...;
+};
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 
 template <typename T>
 concept CreateAndAddable = requires(T widget, wxWindow* window, wxSizer* sizer) {
@@ -100,7 +108,7 @@ struct Widget {
         return static_cast<W&>(*this);
     }
 
-    using Handler = std::function<void(wxCommandEvent&)>;
+    using Handler = std::variant<std::function<void(wxCommandEvent&)>, std::function<void()>>;
 
 protected:
     auto bind(wxEventTypeTag<wxCommandEvent> event, Handler handler) -> W&
@@ -122,7 +130,18 @@ private:
     auto bindHandlers(wxWindow* widget) -> wxWindow*
     {
         for (auto&& [event, func] : boundedHandlers) {
-            widget->Bind(event, func);
+            std::visit(
+                overloaded {
+                    [&widget, event](std::function<void(wxCommandEvent&)> func) {
+                        widget->Bind(event, func);
+                    },
+                    [&widget, event](std::function<void()> func) {
+                        widget->Bind(event, [func](wxCommandEvent&) {
+                            func();
+                        });
+                    },
+                },
+                func);
         }
         return widget;
     }
@@ -313,7 +332,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxSizerFlags().Border(),
         HSizer {
             wxSizerFlags().Border().Expand(),
-            Button { wxID_ANY, "Click" }.bind([](wxCommandEvent&) {
+            Button { wxID_ANY, "Click" }.bind([] {
                 wxLogMessage("Button Clicked!");
             }),
             TextCtrl { wxID_ANY, "Dog" }
