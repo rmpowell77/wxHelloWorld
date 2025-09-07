@@ -44,29 +44,26 @@ bool MyApp::OnInit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    CreateStatusBar(1);
-    // Create the controls.
     wxButton* button = new wxButton(this, wxID_ANY, "Click");
     wxTextCtrl* text1 = new wxTextCtrl(this, wxID_ANY, "Dog");
     wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "Cat");
     wxButton* done = new wxButton(this, wxID_EXIT, "Done");
 
-    // Layout the controls.
-    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
 
-    wxBoxSizer* sizerTop = new wxBoxSizer(wxHORIZONTAL);
-    sizerTop->Add(button, wxSizerFlags().Border());
-    sizerTop->Add(text1, wxSizerFlags(1).Border());
+    wxBoxSizer* sizerUpper = new wxBoxSizer(wxHORIZONTAL);
+    sizerUpper->Add(button, wxSizerFlags().Border());
+    sizerUpper->Add(text1, wxSizerFlags(1).Border());
 
-    sizer->Add(sizerTop, wxSizerFlags().Border().Expand());
+    topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
 
-    wxBoxSizer* sizerBottom = new wxBoxSizer(wxHORIZONTAL);
-    sizerBottom->Add(text2, wxSizerFlags().Border());
-    sizerBottom->Add(done, wxSizerFlags().Border());
+    wxBoxSizer* sizerLower = new wxBoxSizer(wxHORIZONTAL);
+    sizerLower->Add(text2, wxSizerFlags().Border());
+    sizerLower->Add(done, wxSizerFlags().Border());
 
-    sizer->Add(sizerBottom, wxSizerFlags().Border());
+    topSizer->Add(sizerLower, wxSizerFlags().Border());
 
-    SetSizerAndFit(sizer);
+    SetSizerAndFit(topSizer);
 }
 
 void MyFrame::OnExit([[maybe_unused]] wxCommandEvent& event)
