@@ -48,6 +48,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     wxTextCtrl* text1 = new wxTextCtrl(this, wxID_ANY, "Dog");
     wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "Cat");
     wxButton* done = new wxButton(this, wxID_EXIT, "Done");
+    wxSlider* slider = new wxSlider(this, wxID_ANY, 3, 1, 10);
 
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -56,6 +57,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     sizerUpper->Add(text1, wxSizerFlags(1).Border());
 
     topSizer->Add(sizerUpper, wxSizerFlags().Border().Expand());
+
+    topSizer->Add(slider, wxSizerFlags().Border().Expand());
 
     wxBoxSizer* sizerLower = new wxBoxSizer(wxHORIZONTAL);
     sizerLower->Add(text2, wxSizerFlags().Border());
